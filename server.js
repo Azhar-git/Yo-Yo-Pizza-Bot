@@ -3,7 +3,7 @@ const uuid = require('uuid');
 const express = require('express');
 const bodyParser = require('body-parser');
 const app = express();
-const port = 5000;
+const PORT = process.env.PORT;
 
 const sessionId = uuid.v4(); // A unique identifier for the given session
 
@@ -64,6 +64,6 @@ async function runSample(msg, projectId = 'pizza-xxxggu') {
   }
   return result.fulfillmentText;
 }
-app.listen(port, ()=>{
-  console.log("Running on port " +port)
+app.listen(PORT || 3000, ()=>{
+  console.log("Running on port " +PORT)
 })
