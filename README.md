@@ -3,6 +3,7 @@ Application Features
 
 Please follow the instructions provided by the Chatbot.
 Note that at present it allows only one Pizza item of any quantity in one order. For ordering another type of Pizza please repeat earlier steps. 
+|[](images/Chatbot.jpg)
 
 The Chatbot supports the following use-cases:
  UI to chat with the chatbot
