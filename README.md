@@ -1,4 +1,4 @@
-                      Yo-Yo-Pizza-Bot-Frontend
+                      Yo-Yo-Pizza-Bot-Backend
 Application Features
 
 Please follow the instructions provided by the Chatbot.
