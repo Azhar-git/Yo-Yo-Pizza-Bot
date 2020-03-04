@@ -5,7 +5,7 @@ const bodyParser = require('body-parser');
 const app = express();
 const PORT = process.env.PORT;
 const knex = require('knex');
-
+const cors = require ('cors');
 userDetailsArray = [];
 selectedPizzaItemArrays = [];
 availablePizzaItemArrays = [];
@@ -19,22 +19,14 @@ const db = knex({
     
   }
 });
-
-
 getAvailablePizzas();
 const sessionId = uuid.v4(); // A unique identifier for the given
 
 app.use(bodyParser.urlencoded({
   extended: false
 }))
-app.use(function (req, res, next) {
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
-res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With, content - type');
-res.setHeader('Access-Control-Allow-Credentials', true);
-  // Pass to next layer of middleware
-  next();
-});
+app.use(cors());
+
 app.post('/send-msg', (req, res) => {
   runSample(req.body.MSG, res).then(data => {
     if (data.includes("Enjoy your Pizza") || data.includes("Order Status for")){
@@ -51,7 +43,7 @@ console.log("Skippimh")
 async function runSample(msg, res, projectId = 'pizza-xxxggu') {
   // Create a new session
   const sessionClient = new dialogflow.SessionsClient({
-    keyFilename: "Pizza-1d542537071a.json"
+    keyFilename: "pizza-xxxggu-a6c8a70ae2e9.json"
   });
   const sessionPath = sessionClient.sessionPath(projectId, sessionId);
   // The text query request.
@@ -66,6 +58,7 @@ async function runSample(msg, res, projectId = 'pizza-xxxggu') {
       },
     },
   };
+  
   // Send request and log result
   const responses = await sessionClient.detectIntent(request);
   console.log('Detected intent');
@@ -79,7 +72,8 @@ async function runSample(msg, res, projectId = 'pizza-xxxggu') {
     console.log(` No intent matched.`);
   }
   if (response.includes("see a list of available Pizza")) {
-    userDetailsArray['userName'] = result.queryText + "";
+    userDetailsArray['userName'] = result.queryText.split(" ")[result.queryText.split(" ").length-1];
+    console.log(userDetailsArray['userName']);
   }
   if (response.includes("to confirm the order to be deliv")) {
     userDetailsArray['Address'] = result.queryText + "";
@@ -93,19 +87,19 @@ console.log("OrderId is " + OrderId);
   for (availablePizzaItemArray of availablePizzaItemArrays) {
     if (result.queryText.includes(availablePizzaItemArray["PizzaVariantName"])){
 selectedPizzaItemArray = availablePizzaItemArray;
-    selectedPizzaItemArray["Quantiit"] = result.queryText.split(" ")
-    [0];
+    selectedPizzaItemArray["Quantiit"] = result.queryText.split(" ")[0];
     selectedPizzaItemArrays.push(availablePizzaItemArray);
   }
 }
-var queryLower =result.queryText.toLowerCase();
-if(queryLower.includes("place order")){
+const lowerQuery = result.queryText.toLowerCase(); 
+if(lowerQuery.includes("place order")){
+  console.log("Order placed")
   updateDetails(userDetailsArray, selectedPizzaItemArrays, res);
 }
 return result.fulfillmentText;
 }
 app.listen(PORT, () => {
-  console.log("Running on port " +PORT)
+  console.log("Running on port " + PORT)
 })
 function getOrderDetails(OrderId, res) {
   orderedData = [];
@@ -144,13 +138,14 @@ function getOrderDetails(OrderId, res) {
                     response = response + ", Total : " + price
                       + ". Enjoy your Order";
                     res.send({ Reply: response })
-                    console.log("Order Details " + response)
+                    console.log(response)
                   }
                 })
           }
         }).catch(err => console.log(err))
     })
 }
+
 function getAvailablePizzas() {
   db.from('pizza_variant_details').select('*')
     .then(entries => {
